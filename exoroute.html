@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ED SW CSV Tool</title>
+<style>
+  :root {
+    --bg: #0f1116;
+    --panel: #141824;
+    --ink: #e6eaf2;
+    --mut: #9aa3b2;
+    --accent: #ff4d6d;
+    --accent-2: #7aa2f7;
+    --line: #23283a;
+    --chip: #1b2133;
+    --chip-ink: #c8d0e0;
+  }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.45;
+  }
+  .wrap {
+    max-width: auto;
+    margin: 32px auto;
+    padding: 0 16px;
+  }
+  header {
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 4px;
+  }
+  .sub {
+    color: var(--mut);
+    font-size: .95rem;
+  }
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 12px;
+    border-radius: 10px;
+    margin: 16px 0 12px;
+    margin: 16px 0 12px;
+  }
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #0d1220;
+    color: var(--ink);
+    outline: none;
+  }
+  .badge {
+    background: var(--chip);
+    color: var(--chip-ink);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: .85rem;
+  }
+  .table-wrap {
+    display: inline-block;
+    width: auto;
+    max-width: none;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+  table {
+    width: auto%;
+    border-collapse: collapse;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(0deg, #151b2a 0%, #1a2032 100%);
+    color: var(--ink);
+    text-align: left;
+    font-weight: 600;
+    font-size: .9rem;
+    border-bottom: 1px solid var(--line);
+    padding: 10px 12px;
+    z-index: 1;
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(odd) td {
+    background: #12182a;
+  }
+  tbody tr:hover td {
+    background: #18213a;
+  }
+  td[] {
+    text-align: left;
+  }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #1e2437;
+    color: var(--ink);
+    font-size: .82rem;
+  }
+  footer {
+    color: var(--mut);
+    margin-top: 12px;
+    font-size: .85rem;
+  }
+  .legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .legend .item {
+    background: #11172a;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+  }
+  .hl { color: var(--accent-2); }
+  
+  @media (min-width: auto;) {
+    .wrap { max-width: auto; }
+  }
+
+  table { table-layout: fixed; }
+
+  td, th { overflow: hidden; text-overflow: ellipsis; }
+
+  .table { table-layout: fixed !important; }
+
+  td[], th[] { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .table-wrap {
+    display: inline-block;
+    width: auto;
+    max-width: none;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+
+  .table { table-layout: fixed; width: max-content; border-collapse: collapse; }
+
+  td, th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  td[], th[] { font-variant-numeric: tabular-nums; }
+
+  .table { table-layout: fixed !important; width: max-content !important; }
+  td, th { white-space: nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .stats {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    margin: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+  }
+  .stats .stat { 
+    display:inline-flex; align-items:baseline; gap:8px;
+    background:#11172a; border:1px solid var(--line); border-radius:8px; padding:6px 10px;
+  }
+  .stats .k { color: var(--mut); }
+  .stats .v { color: var(--ink); font-weight:600; }
+
+  .stats .stat { 
+    display: inline-flex; align-items: baseline; gap: 8px;
+    background: #11172a; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
+    margin: 6px 8px 6px 0;
+  }
+  .stats .k { color: var(--mut); }
+  .stats .v { color: var(--ink); font-weight: 600; }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 0;
+  }
+
+  .wrap {
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  /* body-type color dot */
+  .dot {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+  }
+
+  .table col:nth-child(1){ width:6ch !important; }   /* checkbox */
+  .table col:nth-child(2){ width:40ch !important; }  /* System Name */
+  .table col:nth-child(3){ width:44ch !important; }  /* Body Name */
+  .table col:nth-child(4){ width:27ch !important; }  /* Distance */
+  .table col:nth-child(5){ width:32ch !important; }  /* Landmark */
+  .table col:nth-child(6){ width:22ch !important; }  /* Value */
+  .table col:nth-child(7){ width:18ch !important; }  /* Count */
+  .table col:nth-child(8){ width:18ch !important; }  /* Jumps */
+
+  .bodytype-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .bodytype-legend .dot {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+    position: relative;
+    top: 2px;
+  }
+
+  /* struck row styling */
+  .row-struck td:not(:first-child) {
+  text-decoration: line-through;
+  text-decoration-thickness: 14px;
+  text-decoration-color: rgba(70, 100, 70, 0.65); /* faded line */
+  /* no opacity here */
+}
+
+  /* Hide the default checkbox */
+.scan-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid rgb(70, 100, 70);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Checked state */
+.scan-checkbox:checked {
+  background: rgb(70, 100, 70);
+  border-color: rgb(70, 100, 70);
+}
+
+/* White checkmark */
+.scan-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 12px;
+  border-right: 3px solid white;
+  border-bottom: 3px solid white;
+  transform: rotate(45deg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Storm Walkers Exobiology Run CSV Reader and Exporter <span class="hl"></span></h1>
+<div class="sub">Import an <b>EXO MASTERY ROUTE</b> CSV from <a href="https://www.spansh.co.uk/exobiology">Spansh.co.uk</a>, instantly convert it into a clear HTML route viewer, and export it as a local HTML file you can keep and reopen whenever you need. </div>
+<div class="legend">
+  <div class="item" id="io-controls">
+    <button id="btn-import-csv" type="button">Import CSV</button>
+    <input id="file-csv" type="file" accept=".csv" style="display:none"/>
+    <button id="btn-export-html" type="button">Export HTML</button>
+  </div>
+  <div class="item">Distance To Arrival: light seconds</div>
+  <div class="item">Jumps: Number of Jumps From Current Location</div>
+  <div class="item">Count: Number of Biological Signs</div>
+  <div class="item">Value: Value per Sample, Per Location</div>
+</div>
+</header>
+<div class="table-wrap">
+  <div class="stats">
+    <div class="stat"><span class="k">Total Systems:</span> <span class="v" id="stat-systems">0</span></div>
+    <div class="stat"><span class="k">Total Bodies:</span> <span class="v" id="stat-bodies">0</span></div>
+    <div class="stat"><span class="k">Total Jumps:</span> <span class="v" id="stat-jumps">0</span></div>
+    <div class="stat"><span class="k">Biological Signs:</span> <span class="v" id="stat-bios">0</span></div>
+    <div class="stat"><span class="k">Potential Value:</span> <span class="v" id="stat-value">0</span></div>
+    <div class="stat"><span class="k">Scanned Value:</span> <span class="v" id="stat-scanned">0</span></div>
+	<div class="stat">
+  <span class="k">Remaining Value:</span>
+  <span class="v" id="stat-remaining">0</span>
+</div>
+
+    <div class="stat bodytype-legend">
+      <span class="dot" style="background:rgb(220, 240, 255);"></span> I-W</div>
+	<div class="stat bodytype-legend">
+      <span class="dot" style="background:rgb(95, 173, 224);"></span> R-I-W</div>
+    <div class="stat bodytype-legend">  
+	  <span class="dot" style="background:rgb(140, 90, 50);"></span> R-W</div>
+    <div class="stat bodytype-legend">  
+	  <span class="dot" style="background:rgb(170, 140, 60);"></span> H-M-C-W 
+    </div>
+  </div>
+  <table class="table table-bordered table-hover table-condensed" style="table-layout:fixed;width:max-content;border-collapse:collapse">
+    <colgroup>
+      <!-- Checkbox -->
+      <!-- System Name -->
+      <!-- Body Name -->
+      <!-- Distance To Arrival -->
+      <!-- Landmark Subtype -->
+      <!-- Value -->
+      <!-- Count -->
+      <!-- Jumps -->
+      <col style="width:6ch"/>
+      <col style="width:40ch"/>
+      <col style="width:44ch"/>
+      <col style="width:27ch"/>
+      <col style="width:32ch"/>
+      <col style="width:22ch"/>
+      <col style="width:18ch"/>
+      <col style="width:18ch"/>
+    </colgroup>
+    <thead>
+      <tr>
+        <th style="text-align:left;" title="Field #0">Done</th>
+        <th style="text-align:left;" title="Field #1">System Name</th>
+        <th style="text-align:left;" title="Field #2">Body Name</th>
+        <th style="text-align:left;" title="Field #3">Distance To Arrival</th>
+        <th style="text-align:left;" title="Field #4">Landmark Subtype</th>
+        <th style="text-align:left;" title="Field #5">Value</th>
+        <th style="text-align:left;" title="Field #6">Count</th>
+        <th style="text-align:left;" title="Field #7">Jumps</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<footer>
+  Built for quick sharing. Copy this file into your site or open locally.
+</footer>
+</div>
+<script id="io-script">
+(function(){
+  var btnImport = document.getElementById('btn-import-csv');
+  var fileInput = document.getElementById('file-csv');
+  var btnExport = document.getElementById('btn-export-html');
+  var table = document.querySelector('table');
+  if (!table) return;
+  var tbody = table.tBodies && table.tBodies[0];
+
+  function stripOuterQuotes(s){
+    if (s == null) return "";
+    s = String(s);
+    s = s.trim();
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      var q = s[0];
+      s = s.slice(1, -1);
+      if (q === '"') s = s.replace(/""/g, '"');
+      if (q === "'") s = s.replace(/''/g, "'");
+    }
+    return s;
+  }
+
+  // lightweight CSV parser that handles quoted fields and commas inside quotes
+  function parseCSV(text){
+    var rows = [];
+    var i = 0, field = "", row = [], inQuotes = false, qchar = null;
+    while (i < text.length) {
+      var c = text[i];
+      if (inQuotes) {
+        if (c === qchar) {
+          if (text[i+1] === qchar) {
+            field += qchar; i += 2; continue;
+          } else {
+            inQuotes = false; i++; continue;
+          }
+        } else {
+          field += c; i++; continue;
+        }
+      } else {
+        if (c === '"' || c === "'") {
+          inQuotes = true; qchar = c; i++; continue;
+        }
+        if (c === ',') { row.push(stripOuterQuotes(field)); field = ""; i++; continue; }
+        if (c === '\r') { i++; continue; }
+        if (c === '\n') { row.push(stripOuterQuotes(field)); rows.push(row); row = []; field = ""; i++; continue; }
+        field += c; i++; continue;
+      }
+    }
+    row.push(stripOuterQuotes(field));
+    rows.push(row);
+    return rows.filter(function(r){ return r.length && r.join('').trim().length; });
+  }
+
+  function importCSV(text){
+    if (!tbody) return;
+    var rows = parseCSV(text);
+    // if header row looks like ours, skip it
+    if (rows.length && /system\s*name/i.test(rows[0][0] || "")) {
+      rows = rows.slice(1);
+    }
+    var frag = document.createDocumentFragment();
+    rows.forEach(function(cols){
+      var tr = document.createElement('tr');
+      tr.dataset.subtype = stripOuterQuotes(cols[2] || "");
+
+      // checkbox cell
+      var tdCheck = document.createElement('td');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'scan-checkbox';
+      tdCheck.appendChild(cb);
+      tr.appendChild(tdCheck);
+
+      // visible data columns: 0,1,3,4,5,6,7
+      var visible = [0,1,3,4,5,6,7];
+      visible.forEach(function(i){
+        var td = document.createElement('td');
+        td.textContent = stripOuterQuotes(cols[i] || "");
+        tr.appendChild(td);
+      });
+
+      frag.appendChild(tr);
+    });
+    tbody.innerHTML = "";
+    tbody.appendChild(frag);
+    applyDots();
+    updateStats();
+  }
+
+  if (btnImport && fileInput) {
+    btnImport.addEventListener('click', function(){ fileInput.click(); });
+    fileInput.addEventListener('change', function(){
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function(e){ importCSV(e.target.result || ""); };
+      reader.readAsText(f);
+      fileInput.value = '';
+    });
+  }
+
+  if (btnExport) {
+    btnExport.addEventListener('click', function(){
+      var name = prompt('Choose a file name (without extension):', 'exo-run-export');
+      if (name == null) return;
+      name = String(name).trim().replace(/[\\/:*?"<>|]+/g, '_');
+      if (!name) name = 'exo-run-export';
+      if (!/\.html?$/i.test(name)) name += '.html';
+      var blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  }
+
+  // map body subtype text to a color
+  function dotColorFor(subtypeText){
+    var t = String(subtypeText || '').toLowerCase();
+
+    // rocky ice world first so it does not get caught by plain "rocky"
+    if (t.includes('rocky ice'))   return 'rgb(95, 173, 224)';   // Rocky Ice World
+    if (t.includes('icy'))         return '#ADD8E6';             // Ice World
+    if (t.includes('rocky'))       return 'rgb(140, 90, 50)';    // Rocky World
+    if (t.includes('high metal'))  return 'rgb(170, 140, 60)';   // High Metal World
+    if (t.includes('metal-rich'))  return 'rgb(170, 140, 60)';   // Metal-rich body
+
+    return '';
+  }
+
+  // add a color dot before Body Name
+  function applyDots(){
+    var table = document.querySelector('table');
+    if (!table || !table.tBodies.length) return;
+    var tbody = table.tBodies[0];
+    Array.from(tbody.rows).forEach(function(r){
+      var bodyNameCell = r.cells[2]; // Body Name (after checkbox and system)
+      var subtype = r.dataset.subtype;
+      var color = dotColorFor(subtype);
+      if (color && !bodyNameCell.querySelector('.dot')) {
+        var dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = color;
+        bodyNameCell.prepend(dot);
+      }
+    });
+  }
+
+  function numberify(txt){
+    if (txt == null) return 0;
+    var s = String(txt).replace(/,/g,'').trim();
+    var n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function setRowStruck(tr, on){
+    if (!tr) return;
+    if (on) {
+      tr.classList.add('row-struck');
+    } else {
+      tr.classList.remove('row-struck');
+    }
+  }
+
+  function updateStats(){
+    var table = document.querySelector('table');
+    if (!table || !table.tBodies.length) return;
+    var tbody = table.tBodies[0];
+    var rows = Array.from(tbody.rows);
+    var systems = [];
+    var bodies = 0;
+    var sumCount = 0;
+    var sumValueTimesCount = 0;
+    var jumps = 0;
+    var scannedSum = 0;
+
+    rows.forEach(function(r){
+      var c = r.cells;
+      if (c.length < 8) return;
+      var sys = (c[1].textContent || '').trim(); // system name after checkbox
+      systems.push(sys);
+      bodies += 1;
+      var val = numberify(c[5].textContent); // Value
+      var cnt = numberify(c[6].textContent); // Count
+      var rowJumps = numberify(c[7].textContent); // Jumps
+      sumCount += cnt;
+      sumValueTimesCount += val * cnt;
+      jumps += rowJumps;
+
+      var cb = r.querySelector('.scan-checkbox');
+      if (cb && cb.checked) {
+        scannedSum += val * cnt;
+      }
+    });
+
+    var uniqueSystems = Array.from(new Set(systems)).length;
+
+    var fmt = new Intl.NumberFormat();
+    var el = function(id){ return document.getElementById(id); };
+
+    var total   = Math.round(sumValueTimesCount);
+    var scanned = Math.round(scannedSum);
+    var remain  = total - scanned;
+
+    if (el('stat-systems'))    el('stat-systems').textContent    = fmt.format(uniqueSystems);
+    if (el('stat-bodies'))     el('stat-bodies').textContent     = fmt.format(bodies);
+    if (el('stat-jumps'))      el('stat-jumps').textContent      = fmt.format(jumps);
+    if (el('stat-bios'))       el('stat-bios').textContent       = fmt.format(sumCount);
+    if (el('stat-value'))      el('stat-value').textContent      = fmt.format(total);
+    if (el('stat-scanned'))    el('stat-scanned').textContent    = fmt.format(scanned);
+    if (el('stat-remaining'))  el('stat-remaining').textContent  = fmt.format(remain);
+  }
+
+  // delegate checkbox changes
+  if (tbody) {
+    tbody.addEventListener('change', function(e){
+      var t = e.target;
+      if (t && t.classList.contains('scan-checkbox')) {
+        var tr = t.closest('tr');
+        setRowStruck(tr, t.checked);
+        updateStats();
+      }
+    });
+  }
+
+  updateStats();
+})();
+</script>
+
+</script>
+
+</script>
+</body>
+</html>
