@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ED SW CSV Tool</title>
 <style>
   :root {
@@ -14,226 +13,311 @@
     --accent: #ff4d6d;
     --accent-2: #7aa2f7;
     --line: #23283a;
-    --chip: #1b2133;
-    --chip-ink: #c8d0e0;
+    --dot-icy: #76b5ff;
+    --dot-rocky-ice: #aad4ff;
+    --dot-rocky: #cfa87a;
+    --dot-metal: #ffd37a;
+    --good: #62d69a;
+    --warn: #ffd56a;
+    --bad: #ff6b6b;
   }
+
+  * {
+    box-sizing: border-box;
+  }
+
   html, body {
     margin: 0;
-    background: var(--bg);
+    padding: 0;
+    height: 100%;
+    background: radial-gradient(circle at top, #181c2a 0, #05060a 60%);
     color: var(--ink);
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    line-height: 1.45;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
+
+  body {
+    display: block;
+	
+  }
+
+  #appWrap {
+    display: block;
+    min-width: 1080px;
+	width: 1080px;
+	margin: 0 auto;
+  }
+
   .wrap {
     max-width: auto;
     margin: 32px auto;
     padding: 0 16px;
   }
+
   header {
     margin-bottom: 16px;
   }
+
   h1 {
-    font-size: 1.5rem;
-    margin: 0 0 4px;
-  }
-  .sub {
-    color: var(--mut);
-    font-size: .95rem;
-  }
-  .controls {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    padding: 12px;
-    border-radius: 10px;
-    margin: 16px 0 12px;
-    margin: 16px 0 12px;
-  }
-  .search {
+    margin: 0 0 8px;
+    font-size: 20px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     display: flex;
     align-items: center;
+    gap: 6px;
+  }
+
+  h1 .hl {
+    display: inline-block;
+    width: 72px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 999px;
+  }
+
+  header .sub {
+    font-size: 13px;
+    color: var(--mut);
+  }
+
+  header .sub b {
+    color: var(--ink);
+  }
+
+  header .sub a {
+    color: var(--accent-2);
+    text-decoration: none;
+  }
+
+  header .sub a:hover {
+    text-decoration: underline;
+  }
+
+  .legend {
+    margin: 16px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    font-size: 13px;
+    color: var(--mut);
+  }
+
+  .legend .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  .dot {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	display: inline-block;
+	margin-right: 4px;
+  }
+
+  .dot-icy {
+    background: var(--dot-icy);
+  }
+
+  .dot-rocky-ice {
+    background: var(--dot-rocky-ice);
+  }
+
+  .dot-rocky {
+    background: var(--dot-rocky);
+  }
+
+  .dot-metal {
+    background: var(--dot-metal);
+  }
+
+  #io-controls button {
+    background: #1d2233;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 13px;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  #io-controls button:hover {
+    border-color: var(--accent-2);
+  }
+
+  #io-controls {
+    display: flex;
     gap: 8px;
   }
-  .search input[type="text"] {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-    background: #0d1220;
-    color: var(--ink);
-    outline: none;
-  }
-  .badge {
-    background: var(--chip);
-    color: var(--chip-ink);
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: .85rem;
-  }
-  .table-wrap {
-    display: inline-block;
-    width: auto;
-    max-width: none;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--panel);
-  }
-  table {
-    width: auto%;
-    border-collapse: collapse;
-  }
-  thead th {
-    position: sticky;
-    top: 0;
-    background: linear-gradient(0deg, #151b2a 0%, #1a2032 100%);
-    color: var(--ink);
-    text-align: left;
-    font-weight: 600;
-    font-size: .9rem;
-    border-bottom: 1px solid var(--line);
-    padding: 10px 12px;
-    z-index: 1;
-  }
-  tbody td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--line);
-    white-space: nowrap;
-  }
-  tbody tr:nth-child(odd) td {
-    background: #12182a;
-  }
-  tbody tr:hover td {
-    background: #18213a;
-  }
-  td[] {
-    text-align: left;
-  }
-  .pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: #1e2437;
-    color: var(--ink);
-    font-size: .82rem;
-  }
-  footer {
-    color: var(--mut);
-    margin-top: 12px;
-    font-size: .85rem;
-  }
-  .legend {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .legend .item {
-    background: #11172a;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 6px 10px;
-  }
-  .hl { color: var(--accent-2); }
-  
-  @media (min-width: auto;) {
-    .wrap { max-width: auto; }
-  }
-
-  table { table-layout: fixed; }
-
-  td, th { overflow: hidden; text-overflow: ellipsis; }
-
-  .table { table-layout: fixed !important; }
-
-  td[], th[] { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
   .table-wrap {
-    display: inline-block;
-    width: auto;
-    max-width: none;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--panel);
-  }
-
-  .table { table-layout: fixed; width: max-content; border-collapse: collapse; }
-
-  td, th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  td[], th[] { font-variant-numeric: tabular-nums; }
-
-  .table { table-layout: fixed !important; width: max-content !important; }
-  td, th { white-space: nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-  .stats {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
+    margin-top: 16px;
+    background: rgba(10, 12, 20, 0.9);
+    border-radius: 8px;
+    border: 1px solid #20263a;
     padding: 10px 12px;
     margin: 0;
     border-bottom: 1px solid var(--line);
-    background: transparent;
   }
-  .stats .stat { 
-    display:inline-flex; align-items:baseline; gap:8px;
-    background:#11172a; border:1px solid var(--line); border-radius:8px; padding:6px 10px;
-  }
-  .stats .k { color: var(--mut); }
-  .stats .v { color: var(--ink); font-weight:600; }
 
-  .stats .stat { 
-    display: inline-flex; align-items: baseline; gap: 8px;
-    background: #11172a; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
-    margin: 6px 8px 6px 0;
-  }
-  .stats .k { color: var(--mut); }
-  .stats .v { color: var(--ink); font-weight: 600; }
-
-  body {
+  .stats {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 40px 0;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-bottom: 12px;
+    font-size: 13px;
   }
 
-  .wrap {
-    margin: 0 auto;
-    text-align: left;
+  .stats .stat {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
   }
 
-  /* body-type color dot */
-  .dot {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
+  .stats .k {
+    color: var(--mut);
+  }
+
+  .stats .v {
+    font-weight: 500;
+  }
+
+  .stats .v.good {
+    color: var(--good);
+  }
+
+  .stats .v.warn {
+    color: var(--warn);
+  }
+
+  .stats .v.bad {
+    color: var(--bad);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(180deg, #1c2232 0, #151927 60%);
+    color: var(--mut);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 6px;
+    border-bottom: 1px solid #262c40;
+    white-space: nowrap;
+  }
+
+  thead th:first-child {
+    border-top-left-radius: 6px;
+  }
+
+  thead th:last-child {
+    border-top-right-radius: 6px;
+  }
+
+  tbody td {
+    padding: 6px 6px;
+    font-size: 13px;
+    border-bottom: 1px solid #1b2031;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #151827;
+  }
+
+  tbody tr:nth-child(odd) {
+    background: #101321;
+  }
+
+  tbody tr:hover {
+    background: #1a1f32;
+  }
+
+  tbody td:first-child {
+    position: sticky;
+    left: 0;
+    background: inherit;
+  }
+
+  tbody td:nth-child(2) {
+    position: left;
+    left: 60px;
+    background: inherit;
+  }
+  
+  td:nth-child(8) {
+    text-align: center;
+  }
+
+  td:nth-child(7) {
+    text-align: center;
+}
+
+  .system-name {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .body-name {
+    color: var(--mut);
+  }
+
+  .value-col {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .checkbox-cell input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  
+  .body-type-dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    margin-right: 8px;
-    vertical-align: middle;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+    display: inline-block;
+    margin-right: 4px;
   }
 
-  .table col:nth-child(1){ width:6ch !important; }   /* checkbox */
-  .table col:nth-child(2){ width:40ch !important; }  /* System Name */
-  .table col:nth-child(3){ width:44ch !important; }  /* Body Name */
-  .table col:nth-child(4){ width:27ch !important; }  /* Distance */
-  .table col:nth-child(5){ width:32ch !important; }  /* Landmark */
-  .table col:nth-child(6){ width:22ch !important; }  /* Value */
-  .table col:nth-child(7){ width:18ch !important; }  /* Count */
-  .table col:nth-child(8){ width:18ch !important; }  /* Jumps */
-
-  .bodytype-legend {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+  .body-type-label {
+    font-size: 12px;
+    color: var(--mut);
   }
-  .bodytype-legend .dot {
-    width: 20px;
-    height: 20px;
-    margin-right: 6px;
-    position: relative;
-    top: 2px;
+
+  .body-type-icy {
+    background: var(--dot-icy);
+  }
+
+  .body-type-rocky-ice {
+    background: var(--dot-rocky-ice);
+  }
+
+  .body-type-rocky {
+    background: var(--dot-rocky);
+  }
+
+  .body-type-metal {
+    background: var(--dot-metal);
   }
 
   /* struck row styling */
@@ -244,115 +328,101 @@
   /* no opacity here */
 }
 
-  /* Hide the default checkbox */
-.scan-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  border: 2px solid rgb(70, 100, 70);
-  background: transparent;
-  cursor: pointer;
-  position: relative;
-}
+  .row-struck td.center {
+    opacity: 0.5;
+  }
 
-/* Checked state */
-.scan-checkbox:checked {
-  background: rgb(70, 100, 70);
-  border-color: rgb(70, 100, 70);
-}
+  footer {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--mut);
+  }
 
-/* White checkmark */
-.scan-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 6px;
-  height: 12px;
-  border-right: 3px solid white;
-  border-bottom: 3px solid white;
-  transform: rotate(45deg);
-}
+  @media (max-width: 900px) {
+    h1 {
+      font-size: 18px;
+      flex-wrap: wrap;
+    }
+    .legend {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .stats {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 </style>
 </head>
 <body>
+
+<div id="appWrap">
 <div class="wrap">
 <header>
 <h1>Storm Walkers Exobiology Run CSV Reader and Exporter <span class="hl"></span></h1>
-<div class="sub">Import an <b>EXO MASTERY ROUTE</b> CSV from <a href="https://www.spansh.co.uk/exobiology">Spansh.co.uk</a>, instantly convert it into a clear HTML route viewer, and export it as a local HTML file you can keep and reopen whenever you need. </div>
+<div class="sub">Import an <b>EXO MASTERY ROUTE</b> CSV from <a href="https://spansh.co.uk/" target="_blank" rel="noreferrer">Spansh.co.uk</a>,
+ instantly convert it into a clear HTML route viewer, and export it as a
+ local HTML file you can keep and reopen whenever you need. </div>
 <div class="legend">
-  <div class="item" id="io-controls">
+  <div class="item" id="io-script">
     <button id="btn-import-csv" type="button">Import CSV</button>
-    <input id="file-csv" type="file" accept=".csv" style="display:none"/>
+    <input id="file-csv" type="file" accept=".csv" style="display:none">
     <button id="btn-export-html" type="button">Export HTML</button>
   </div>
-  <div class="item">Distance To Arrival: light seconds</div>
-  <div class="item">Jumps: Number of Jumps From Current Location</div>
-  <div class="item">Count: Number of Biological Signs</div>
-  <div class="item">Value: Value per Sample, Per Location</div>
-</div>
+  <div class="legend legendhelpers">
+	  <div class="item">Distance To Arrival: light seconds</div>
+	  <div class="item">Jumps: Number of Jumps From Current Location</div>
+	  <div class="item">Count: Number of all Biological Signs</div>
+	  <div class="item">Value: Most lucrative Sample, Per Location</div>
+  </div>
+ </div>
 </header>
 <div class="table-wrap">
-  <div class="stats">
-    <div class="stat"><span class="k">Total Systems:</span> <span class="v" id="stat-systems">0</span></div>
-    <div class="stat"><span class="k">Total Bodies:</span> <span class="v" id="stat-bodies">0</span></div>
-    <div class="stat"><span class="k">Total Jumps:</span> <span class="v" id="stat-jumps">0</span></div>
-    <div class="stat"><span class="k">Biological Signs:</span> <span class="v" id="stat-bios">0</span></div>
-    <div class="stat"><span class="k">Potential Value:</span> <span class="v" id="stat-value">0</span></div>
-    <div class="stat"><span class="k">Scanned Value:</span> <span class="v" id="stat-scanned">0</span></div>
-	<div class="stat">
-  <span class="k">Remaining Value:</span>
-  <span class="v" id="stat-remaining">0</span>
-</div>
-
-    <div class="stat bodytype-legend">
-      <span class="dot" style="background:rgb(220, 240, 255);"></span> I-W</div>
-	<div class="stat bodytype-legend">
-      <span class="dot" style="background:rgb(95, 173, 224);"></span> R-I-W</div>
-    <div class="stat bodytype-legend">  
-	  <span class="dot" style="background:rgb(140, 90, 50);"></span> R-W</div>
-    <div class="stat bodytype-legend">  
-	  <span class="dot" style="background:rgb(170, 140, 60);"></span> H-M-C-W 
+    <div class="stats">
+    <div class="stat"><span class="k">Systems:</span> <span class="v" id="stat-systems">0</span></div>
+    <div class="stat"><span class="k">Bodies:</span> <span class="v" id="stat-bodies">0</span></div>
+    <div class="stat"><span class="k">Jumps:</span> <span class="v" id="stat-jumps">0</span></div>
+    <div class="stat"><span class="k">Biologicals:</span> <span class="v" id="stat-bios">0</span></div>
+    <div class="stat"><span class="k">Potential CR:</span> <span class="v" id="stat-value">0</span></div>
+    <div class="stat"><span class="k">Scanned CR:</span> <span class="v" id="stat-scanned">0</span></div>
+    <div class="stat"><span class="k">Remaining CR:</span> <span class="v" id="stat-remaining">0</span></div>
+  </div>
+   
+  <div class="stats bodytype-row">
+    <div class="stat">
+      <span class="body-type-dot body-type-icy"></span><span class="body-type-label">I W</span>
+    </div>
+    <div class="stat">
+      <span class="body-type-dot body-type-rocky-ice"></span><span class="body-type-label">R I W</span>
+    </div>
+    <div class="stat">
+      <span class="body-type-dot body-type-rocky"></span><span class="body-type-label">R W</span>
+    </div>
+    <div class="stat">
+      <span class="body-type-dot body-type-metal"></span><span class="body-type-label">H M C W</span>
     </div>
   </div>
-  <table class="table table-bordered table-hover table-condensed" style="table-layout:fixed;width:max-content;border-collapse:collapse">
-    <colgroup>
-      <!-- Checkbox -->
-      <!-- System Name -->
-      <!-- Body Name -->
-      <!-- Distance To Arrival -->
-      <!-- Landmark Subtype -->
-      <!-- Value -->
-      <!-- Count -->
-      <!-- Jumps -->
-      <col style="width:6ch"/>
-      <col style="width:40ch"/>
-      <col style="width:44ch"/>
-      <col style="width:27ch"/>
-      <col style="width:32ch"/>
-      <col style="width:22ch"/>
-      <col style="width:18ch"/>
-      <col style="width:18ch"/>
-    </colgroup>
-    <thead>
-      <tr>
-        <th style="text-align:left;" title="Field #0">Done</th>
-        <th style="text-align:left;" title="Field #1">System Name</th>
-        <th style="text-align:left;" title="Field #2">Body Name</th>
-        <th style="text-align:left;" title="Field #3">Distance To Arrival</th>
-        <th style="text-align:left;" title="Field #4">Landmark Subtype</th>
-        <th style="text-align:left;" title="Field #5">Value</th>
-        <th style="text-align:left;" title="Field #6">Count</th>
-        <th style="text-align:left;" title="Field #7">Jumps</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  
+  <div class="table-wrap-inner" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th class="center">Done</th>
+          <th style="text-align:left;" title="Field #1">System Name</th>
+          <th style="text-align:left;" title="Field #2">Body Name</th>
+          <th style="text-align:left;" title="Field #3">Distance To Arrival</th>
+          <th style="text-align:left;" title="Field #4">Landmark Subtype</th>
+          <th style="text-align:left;" title="Field #5">Value</th>
+          <th style="text-align:left;" title="Field #6">Count</th>
+          <th style="text-align:left;" title="Field #7">Jumps</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 <footer>
-  Built for quick sharing. Import your .CSV and export it in HTML format for offline use.
+  Built for quick sharing. Import your .CSV and export in HTML format for offline use.
 </footer>
 </div>
 <script id="io-script">
@@ -584,9 +654,4 @@
   updateStats();
 })();
 </script>
-
-</script>
-
-</script>
-</body>
-</html>
+</body></html>
