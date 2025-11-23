@@ -30,8 +30,7 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    background: radial-gradient(circle at top, #181c2a 0, #05060a 60%) no-repeat;
-	background-color: #05060a;
+    background: radial-gradient(circle at top, #181c2a 0, #05060a 60%);
     color: var(--ink);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
@@ -480,40 +479,71 @@
   }
 
   function importCSV(text){
-    if (!tbody) return;
-    var rows = parseCSV(text);
-    // if header row looks like ours, skip it
-    if (rows.length && /system\s*name/i.test(rows[0][0] || "")) {
-      rows = rows.slice(1);
-    }
-    var frag = document.createDocumentFragment();
-    rows.forEach(function(cols){
-      var tr = document.createElement('tr');
-      tr.dataset.subtype = stripOuterQuotes(cols[2] || "");
+	  if (!tbody) return;
+	  var rows = parseCSV(text);
+	  // if header row looks like ours, skip it
+	  if (rows.length && /system\s*name/i.test(rows[0][0] || "")) {
+		rows = rows.slice(1);
+	  }
+	  var frag = document.createDocumentFragment();
+	  rows.forEach(function(cols){
+		var tr = document.createElement('tr');
+		tr.dataset.subtype = stripOuterQuotes(cols[2] || "");
 
-      // checkbox cell
-      var tdCheck = document.createElement('td');
-      var cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.className = 'scan-checkbox';
-      tdCheck.appendChild(cb);
-      tr.appendChild(tdCheck);
+		// checkbox cell
+		var tdCheck = document.createElement('td');
+		var cb = document.createElement('input');
+		cb.type = 'checkbox';
+		cb.className = 'scan-checkbox';
+		tdCheck.appendChild(cb);
+		tr.appendChild(tdCheck);
 
-      // visible data columns: 0,1,3,4,5,6,7
-      var visible = [0,1,3,4,5,6,7];
-      visible.forEach(function(i){
-        var td = document.createElement('td');
-        td.textContent = stripOuterQuotes(cols[i] || "");
-        tr.appendChild(td);
-      });
+		// explicit cells so we can force Count = 1
+		var td;
 
-      frag.appendChild(tr);
-    });
-    tbody.innerHTML = "";
-    tbody.appendChild(frag);
-    applyDots();
-    updateStats();
-  }
+		// System Name (CSV col 0)
+		td = document.createElement('td');
+		td.textContent = stripOuterQuotes(cols[0] || "");
+		tr.appendChild(td);
+
+		// Body Name (CSV col 1)
+		td = document.createElement('td');
+		td.textContent = stripOuterQuotes(cols[1] || "");
+		tr.appendChild(td);
+
+		// Distance To Arrival (CSV col 3)
+		td = document.createElement('td');
+		td.textContent = stripOuterQuotes(cols[3] || "");
+		tr.appendChild(td);
+
+		// Landmark Subtype (CSV col 4)
+		td = document.createElement('td');
+		td.textContent = stripOuterQuotes(cols[4] || "");
+		tr.appendChild(td);
+
+		// Value (CSV col 5)
+		td = document.createElement('td');
+		td.textContent = stripOuterQuotes(cols[5] || "");
+		tr.appendChild(td);
+
+		// Count — ALWAYS 1, regardless of CSV
+		td = document.createElement('td');
+		td.textContent = "1";
+		tr.appendChild(td);
+
+		// Jumps (CSV col 7)
+		td = document.createElement('td');
+		td.textContent = stripOuterQuotes(cols[7] || "");
+		tr.appendChild(td);
+
+		frag.appendChild(tr);
+	  });
+	  tbody.innerHTML = "";
+	  tbody.appendChild(frag);
+	  applyDots();
+	  updateStats();
+	}
+
 
   if (btnImport && fileInput) {
     btnImport.addEventListener('click', function(){ fileInput.click(); });
